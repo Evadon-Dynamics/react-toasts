@@ -26,9 +26,13 @@ export interface IToastsContainerState {
   toasts: any[];
 }
 
-export class ToastsContainer extends Component<IToastsContainerProps, IToastsContainerState> {
+export class ToastsContainer extends Component<
+  IToastsContainerProps,
+  IToastsContainerState
+> {
   private storeSubscriptionId: number;
-  private timeoutArray: number[];
+  private timeoutArray: NodeJS.Timeout[];
+  // private timeoutArray: number[];
 
   constructor(props: IToastsContainerProps) {
     super(props);
@@ -46,9 +50,13 @@ export class ToastsContainer extends Component<IToastsContainerProps, IToastsCon
     this.storeSubscriptionId = this.props.store.watch((data) => {
       const toast = { ...data, id: Math.random() };
       this.setState({ toasts: [toast].concat(this.state.toasts) });
-      this.timeoutArray.push(setTimeout(() => {
-        this.setState({ toasts: this.state.toasts.filter((t) => t.id !== toast.id) });
-      }, data.timer || 3000));
+      this.timeoutArray.push(
+        setTimeout(() => {
+          this.setState({
+            toasts: this.state.toasts.filter((t) => t.id !== toast.id),
+          });
+        }, data.timer || 3000)
+      );
     });
 
     const styles: any = {};
@@ -93,28 +101,27 @@ export class ToastsContainer extends Component<IToastsContainerProps, IToastsCon
   }
 
   public render() {
-    return ReactDOM.createPortal(
-      this._renderContainer(),
-      document.body,
-    );
+    return ReactDOM.createPortal(this._renderContainer(), document.body);
   }
 
   private _renderContainer() {
     const style = this.props.lightBackground ? LightColors : DarkColors;
     return (
-      <div style={this.state.styles}
-           className={"toasts-container " + (this.props.className || "")}>
-        {
-          this.state.toasts.map((toast) => {
-            return (
-              <div key={toast.id}
-                   className={"toast toast-" + toast.status + " " + toast.classNames}
-                   style={style[toast.status]}>
-                {toast.message}
-              </div>
-            );
-          })
-        }
+      <div
+        style={this.state.styles}
+        className={"toasts-container " + (this.props.className || "")}
+      >
+        {this.state.toasts.map((toast) => {
+          return (
+            <div
+              key={toast.id}
+              className={"toast toast-" + toast.status + " " + toast.classNames}
+              style={style[toast.status]}
+            >
+              {toast.message}
+            </div>
+          );
+        })}
       </div>
     );
   }
